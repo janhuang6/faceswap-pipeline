@@ -1,52 +1,56 @@
 import os
+import argparse
 import cv2
 import json
-import tqdm
+from tqdm import tqdm
 
-# Constants
-SOURCE_DIR = 'lfw_funneled/'
-TARGET_DIR = 'processed_faces/'
-IMAGE_SIZE = (256, 256)
-META_DATA_FILE = 'metadata.json'
 
-# Ensure the target directory exists
-if not os.path.exists(TARGET_DIR):
-    os.makedirs(TARGET_DIR)
+def preprocess_images(input_dir, output_dir, source_person, img_size):
+    source_faces_dir = os.path.join(output_dir, 'source_faces')
+    target_faces_dir = os.path.join(output_dir, 'target_faces')
 
-# Metadata storage
-metadata = {'source_faces': [], 'target_faces': []}
+    os.makedirs(source_faces_dir, exist_ok=True)
+    os.makedirs(target_faces_dir, exist_ok=True)
 
-def process_face(image_path, is_source):
-    try:
-        # Read the image
-        image = cv2.imread(image_path)
-        # Resize the image
-        image_resized = cv2.resize(image, IMAGE_SIZE)
-        # Create target path
-        face_name = os.path.basename(image_path)
-        target_path = os.path.join(TARGET_DIR, face_name)
-        # Save the processed image
-        cv2.imwrite(target_path, image_resized)
-        # Append metadata
-        if is_source:
-            metadata['source_faces'].append(target_path)
-        else:
-            metadata['target_faces'].append(target_path)
-    except Exception as e:
-        print(f'Error processing {image_path}: {e}')  # Error handling
+    metadata = {'source_faces': [], 'target_faces': []}
 
-# Counting total images for progress tracking
-total_files = sum(len(files) for _, _, files in os.walk(SOURCE_DIR))
+    # Scan through the input directory and subfolders
+    for root, dirs, files in os.walk(input_dir):
+        for file in tqdm(files, desc='Processing images'):
+            if file.lower().endswith(('.png', '.jpg', '.jpeg')):
+                img_path = os.path.join(root, file)
+                try:
+                    # Read the image
+                    image = cv2.imread(img_path)
+                    if image is None:
+                        raise ValueError('Image could not be read.')
 
-for root, dirs, files in os.walk(SOURCE_DIR):
-    for file in tqdm.tqdm(files, desc='Processing images', total=total_files):
-        file_path = os.path.join(root, file)
-        # Check if it's an image file (you can modify this check based on requirements)
-        if file.lower().endswith(('.png', '.jpg', '.jpeg')):
-            # Assume source faces are in 'source' folder and target faces are in 'target' folder
-            is_source = 'source' in root
-            process_face(file_path, is_source)
+                    # Resize the image
+                    image = cv2.resize(image, (img_size, img_size))
 
-# Save the metadata to a JSON file
-with open(META_DATA_FILE, 'w') as meta_file:
-    json.dump(metadata, meta_file, indent=4)
+                    if source_person in root:
+                        dest_path = os.path.join(source_faces_dir, file)
+                        metadata['source_faces'].append(dest_path)
+                    else:
+                        dest_path = os.path.join(target_faces_dir, file)
+                        metadata['target_faces'].append(dest_path)
+
+                    # Save the image
+                    cv2.imwrite(dest_path, image)
+                except Exception as e:
+                    print(f'Error processing {img_path}: {e}')
+
+                    # Save metadata to JSON
+    with open(os.path.join(output_dir, 'metadata.json'), 'w') as json_file:
+        json.dump(metadata, json_file, indent=4)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Preprocess images for face swap pipeline.')
+    parser.add_argument('input_dir', type=str, help='Input directory containing images')
+    parser.add_argument('output_dir', type=str, help='Output directory for processed images')
+    parser.add_argument('source_person', type=str, help='Name of the source person')
+    parser.add_argument('img_size', type=int, help='Size to resize images')
+    args = parser.parse_args()
+
+    preprocess_images(args.input_dir, args.output_dir, args.source_person, args.img_size)
