@@ -1,48 +1,52 @@
 import os
 import cv2
-import argparse
 import json
-import numpy as np
+import tqdm
 
-class FacePreprocessor:
-    def __init__(self, input_dir, output_dir, source_person, img_size):
-        self.input_dir = input_dir
-        self.output_dir = output_dir
-        self.source_person = source_person
-        self.img_size = img_size
-        self.metadata = {'processed_images': [], 'total_images': 0}
+# Constants
+SOURCE_DIR = 'lfw_funneled/'
+TARGET_DIR = 'processed_faces/'
+IMAGE_SIZE = (256, 256)
+META_DATA_FILE = 'metadata.json'
 
-    def process_images(self):
-        for root, dirs, files in os.walk(self.input_dir):
-            for file in files:
-                if file.lower().endswith(('.png', '.jpg', '.jpeg')):
-                    self.metadata['total_images'] += 1
-                    img_path = os.path.join(root, file)
-                    self.process_image(img_path)
+# Ensure the target directory exists
+if not os.path.exists(TARGET_DIR):
+    os.makedirs(TARGET_DIR)
 
-    def process_image(self, img_path):
-        image = cv2.imread(img_path)
-        # Here add face detection and preprocessing logic
-        # For the sake of demonstration, let's assume the following dummy logic
-        processed_image = cv2.resize(image, (self.img_size, self.img_size))
-        output_path = os.path.join(self.output_dir, os.path.basename(img_path))
-        cv2.imwrite(output_path, processed_image)
-        
-        self.metadata['processed_images'].append(output_path)
+# Metadata storage
+metadata = {'source_faces': [], 'target_faces': []}
 
-    def save_metadata(self):
-        with open(os.path.join(self.output_dir, 'metadata.json'), 'w') as f:
-            json.dump(self.metadata, f, indent=4)
-        print('Metadata saved!')
+def process_face(image_path, is_source):
+    try:
+        # Read the image
+        image = cv2.imread(image_path)
+        # Resize the image
+        image_resized = cv2.resize(image, IMAGE_SIZE)
+        # Create target path
+        face_name = os.path.basename(image_path)
+        target_path = os.path.join(TARGET_DIR, face_name)
+        # Save the processed image
+        cv2.imwrite(target_path, image_resized)
+        # Append metadata
+        if is_source:
+            metadata['source_faces'].append(target_path)
+        else:
+            metadata['target_faces'].append(target_path)
+    except Exception as e:
+        print(f'Error processing {image_path}: {e}')  # Error handling
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Process some images.')
-    parser.add_argument('--input-dir', type=str, required=True, help='Input directory with images')
-    parser.add_argument('--output-dir', type=str, required=True, help='Output directory for processed images')
-    parser.add_argument('--source-person', type=str, required=True, help='Name of the source person')
-    parser.add_argument('--img-size', type=int, default=256, help='Size of the processed images')
-    args = parser.parse_args()
+# Counting total images for progress tracking
+total_files = sum(len(files) for _, _, files in os.walk(SOURCE_DIR))
 
-    preprocessor = FacePreprocessor(args.input_dir, args.output_dir, args.source_person, args.img_size)
-    preprocessor.process_images()
-    preprocessor.save_metadata()
+for root, dirs, files in os.walk(SOURCE_DIR):
+    for file in tqdm.tqdm(files, desc='Processing images', total=total_files):
+        file_path = os.path.join(root, file)
+        # Check if it's an image file (you can modify this check based on requirements)
+        if file.lower().endswith(('.png', '.jpg', '.jpeg')):
+            # Assume source faces are in 'source' folder and target faces are in 'target' folder
+            is_source = 'source' in root
+            process_face(file_path, is_source)
+
+# Save the metadata to a JSON file
+with open(META_DATA_FILE, 'w') as meta_file:
+    json.dump(metadata, meta_file, indent=4)
