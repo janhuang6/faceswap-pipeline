@@ -44,16 +44,16 @@ class DatasetUpdater:
     def add_source_face(self, image_path, destination_name=None):
         image_path = Path(image_path)
         if not image_path.exists():
-            print(f"❌ Image not found: {image_path}")
+            print(f"Image not found: {image_path}")
             return False
         img = cv2.imread(str(image_path))
         if img is None:
-            print(f"❌ Could not read image: {image_path}")
+            print(f"Could not read image: {image_path}")
             return False
         dest_name = destination_name or image_path.stem
         dest_path = self.source_dir / f"{dest_name}.jpg"
         cv2.imwrite(str(dest_path), img)
-        print(f"✅ Added source face: {dest_path}")
+        print(f"Added source face: {dest_path}")
         self.metadata['images'][str(dest_path)] = {'type': 'source', 'added': datetime.now().isoformat()}
         self.metadata['source_count'] += 1
         self.metadata['total_images'] += 1
@@ -63,11 +63,11 @@ class DatasetUpdater:
     def add_target_faces(self, source_dir, label=None):
         source_dir = Path(source_dir)
         if not source_dir.exists():
-            print(f"❌ Directory not found: {source_dir}")
+            print(f"Directory not found: {source_dir}")
             return 0
         count = 0
         valid_extensions = {'.jpg', '.jpeg', '.png', '.bmp'}
-        print(f"📂 Scanning directory: {source_dir}")
+        print(f"Scanning directory: {source_dir}")
         for image_path in tqdm(source_dir.rglob('*')):
             if image_path.suffix.lower() in valid_extensions:
                 img = cv2.imread(str(image_path))
@@ -80,15 +80,15 @@ class DatasetUpdater:
         self.metadata['target_count'] += count
         self.metadata['total_images'] += count
         self._save_metadata()
-        print(f"✅ Added {count} target faces from {source_dir}")
+        print(f"Added {count} target faces from {source_dir}")
         return count
     
     def organize_lfwpeople_dataset(self, lfwpeople_path):
         lfwpeople_path = Path(lfwpeople_path)
         if not lfwpeople_path.exists():
-            print(f"❌ LFW People directory not found: {lfwpeople_path}")
+            print(f"LFW People directory not found: {lfwpeople_path}")
             return 0
-        print("📥 Organizing LFW People dataset...")
+        print("Organizing LFW People dataset...")
         count = self.add_target_faces(str(lfwpeople_path), label='lfw_people')
         return count
     
@@ -99,7 +99,7 @@ class DatasetUpdater:
     def print_stats(self):
         stats = self.get_dataset_stats()
         print("\n" + "="*50)
-        print("📊 DATASET STATISTICS")
+        print("DATASET STATISTICS")
         print("="*50)
         print(f"Total Images: {stats['total_images']}")
         print(f"Source Faces: {stats['source_faces']}")

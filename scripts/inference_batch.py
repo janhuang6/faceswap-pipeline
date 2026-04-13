@@ -17,28 +17,28 @@ def main():
 
     # Validate inputs
     if not os.path.exists(args.source):
-        print(f"❌ Source image not found: {args.source}")
+        print(f"Source image not found: {args.source}")
         sys.exit(1)
 
     if not os.path.isdir(args.target_dir):
-        print(f"❌ Target directory not found: {args.target_dir}")
+        print(f"Target directory not found: {args.target_dir}")
         sys.exit(1)
 
     if not os.path.exists(args.checkpoint):
-        print(f"❌ Checkpoint not found: {args.checkpoint}")
+        print(f"Checkpoint not found: {args.checkpoint}")
         sys.exit(1)
 
     # Initialize inference engine
-    print("🔄 Loading model...\n")
+    print("Loading model...\n")
     try:
         inference = FaceSwapInference(args.checkpoint, device=args.device)
     except Exception as e:
-        print(f"❌ Failed to load model: {e}")
+        print(f"Failed to load model: {e}")
         sys.exit(1)
 
     # Perform batch swap
-    print(f"\n�� Source: {args.source}")
-    print(f"📁 Target directory: {args.target_dir}\n")
+    print(f"\nSource: {args.source}")
+    print(f"Target directory: {args.target_dir}\n")
 
     try:
         results = inference.swap_faces_batch(args.source, args.target_dir, args.output_dir)
@@ -48,19 +48,19 @@ def main():
         failed = sum(1 for r in results if r['status'] == 'failed')
 
         if successful > 0:
-            print(f"✅ All files saved successfully!")
+            print(f"All files saved successfully!")
             # List saved files
-            print(f"\n📁 Saved files in {args.output_dir}:")
+            print(f"\nSaved files in {args.output_dir}:")
             for result in results:
                 if result['status'] == 'success':
-                    print(f"   ✅ {os.path.basename(result['output'])} ({result['file_size_kb']} KB)")
+                    print(f"   {os.path.basename(result['output'])} ({result['file_size_kb']} KB)")
             sys.exit(0)
         else:
-            print(f"❌ All batch processing failed!")
+            print(f"All batch processing failed!")
             sys.exit(1)
 
     except Exception as e:
-        print(f"❌ Error during batch inference: {e}")
+        print(f"Error during batch inference: {e}")
         sys.exit(1)
 
 
