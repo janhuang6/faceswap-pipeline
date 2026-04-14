@@ -192,20 +192,20 @@ TRAINING STATISTICS
 {'=' * 50}
 
 Generator Loss:
-  • Initial: {g_loss[0]:.4f}
-  • Final: {g_loss[-1]:.4f}
-  • Change: {g_loss[-1] - g_loss[0]:.4f}
-  • Trend: {'Decreasing' if g_loss[-1] < g_loss[0] else 'Increasing'}
+  o Initial: {g_loss[0]:.4f}
+  o Final: {g_loss[-1]:.4f}
+  o Change: {g_loss[-1] - g_loss[0]:.4f}
+  o Trend: {'Decreasing' if g_loss[-1] < g_loss[0] else 'Increasing'}
 
 Discriminator Loss:
-  • Initial: {d_loss[0]:.4f}
-  • Final: {d_loss[-1]:.4f}
-  • Change: {d_loss[-1] - d_loss[0]:.4f}
+  o Initial: {d_loss[0]:.4f}
+  o Final: {d_loss[-1]:.4f}
+  o Change: {d_loss[-1] - d_loss[0]:.4f}
 
 Identity Loss:
-  • Initial: {self.metrics['identity_loss'][0]:.4f}
-  • Final: {self.metrics['identity_loss'][-1]:.4f}
-  • Trend: {'Better (Source preserved)' if self.metrics['identity_loss'][-1] < self.metrics['identity_loss'][0] else '↑ Worse'}
+  o Initial: {self.metrics['identity_loss'][0]:.4f}
+  o Final: {self.metrics['identity_loss'][-1]:.4f}
+  o Trend: {'Better (Source preserved)' if self.metrics['identity_loss'][-1] < self.metrics['identity_loss'][0] else '↑ Worse'}
 
 Total Epochs: {len(epochs)}
 
