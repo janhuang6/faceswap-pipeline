@@ -55,8 +55,8 @@ class FaceSwapDataset(Dataset):
             self.target_images = random.sample(self.target_images, max_images)
 
         if len(self.source_images) == 0 or len(self.target_images) == 0:
-            raise ValueError("❌ No images found in source or target directory")
-        print(f"✅ Loaded {len(self.source_images)} source faces and {len(self.target_images)} target faces")
+            raise ValueError("No images found in source or target directory")
+        print(f"Loaded {len(self.source_images)} source faces and {len(self.target_images)} target faces")
 
     def _load_image_paths(self, directory):
         valid_extensions = {'.jpg', '.jpeg', '.png', '.bmp'}
@@ -344,9 +344,9 @@ class FaceSwapTrainerAdvanced:
             'adversarial_loss': []
         }
 
-        print(f"✅ Advanced Trainer initialized on device: {self.device}")
-        print(f"📊 Generator parameters: {self._count_parameters(self.generator):,}")
-        print(f"📊 Discriminator parameters: {self._count_parameters(self.discriminator):,}")
+        print(f"Advanced Trainer initialized on device: {self.device}")
+        print(f"Generator parameters: {self._count_parameters(self.generator):,}")
+        print(f"Discriminator parameters: {self._count_parameters(self.discriminator):,}")
 
     def _count_parameters(self, model):
         return sum(p.numel() for p in model.parameters() if p.requires_grad)
@@ -457,14 +457,14 @@ class FaceSwapTrainerAdvanced:
         }
         path = self.checkpoint_dir / f'checkpoint_epoch_{epoch}.pt'
         torch.save(checkpoint, path)
-        print(f"✅ Checkpoint saved: {path}")
+        print(f"Checkpoint saved: {path}")
 
     def train(self, source_dir, target_dir, epochs=50, batch_size=4):
         dataset = FaceSwapDataset(source_dir, target_dir)
         dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=0)
 
-        print(f"\n🚀 Starting training for {epochs} epochs on {self.device}")
-        print(f"📊 Batch size: {batch_size}, Total batches: {len(dataloader)}\n")
+        print(f"\nStarting training for {epochs} epochs on {self.device}")
+        print(f"Batch size: {batch_size}, Total batches: {len(dataloader)}\n")
 
         for epoch in range(epochs):
             epoch_metrics = self.train_epoch(dataloader, epoch)
@@ -475,7 +475,7 @@ class FaceSwapTrainerAdvanced:
 
             # Print metrics
             if (epoch + 1) % 1 == 0:
-                print(f"\n📊 Epoch {epoch + 1}/{epochs}")
+                print(f"\nEpoch {epoch + 1}/{epochs}")
                 print(f"  Generator Loss: {self.metrics['generator_loss'][-1]:.4f}")
                 print(f"  Discriminator Loss: {self.metrics['discriminator_loss'][-1]:.4f}")
                 print(f"  L1 Loss: {self.metrics['l1_loss'][-1]:.4f}")
@@ -487,13 +487,13 @@ class FaceSwapTrainerAdvanced:
             self.scheduler_d.step()
             self._save_metrics(epoch)
 
-        print("\n✅ Training completed!")
+        print("\nTraining completed!")
 
     def _save_metrics(self, epoch):
         metrics_file = self.checkpoint_dir / f"training_metrics_epoch_{epoch}.json"
         with open(metrics_file, 'w') as f:
             json.dump(self.metrics, f, indent=2)
-        print(f"✅ Metrics saved to: {metrics_file}")
+        print(f"Metrics saved to: {metrics_file}")
 
 
 def main():

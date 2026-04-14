@@ -195,7 +195,7 @@ Generator Loss:
   • Initial: {g_loss[0]:.4f}
   • Final: {g_loss[-1]:.4f}
   • Change: {g_loss[-1] - g_loss[0]:.4f}
-  • Trend: {'↓ Decreasing' if g_loss[-1] < g_loss[0] else '↑ Increasing'}
+  • Trend: {'Decreasing' if g_loss[-1] < g_loss[0] else 'Increasing'}
 
 Discriminator Loss:
   • Initial: {d_loss[0]:.4f}
@@ -205,14 +205,14 @@ Discriminator Loss:
 Identity Loss:
   • Initial: {self.metrics['identity_loss'][0]:.4f}
   • Final: {self.metrics['identity_loss'][-1]:.4f}
-  • Trend: {'↓ Better (Source preserved)' if self.metrics['identity_loss'][-1] < self.metrics['identity_loss'][0] else '↑ Worse'}
+  • Trend: {'Better (Source preserved)' if self.metrics['identity_loss'][-1] < self.metrics['identity_loss'][0] else '↑ Worse'}
 
 Total Epochs: {len(epochs)}
 
 INTERPRETATION:
-✓ G loss decreasing = Better generation
-✓ D loss stable = Balanced training
-✓ Identity loss decreasing = Better source preservation
+G loss decreasing = Better generation
+D loss stable = Balanced training
+Identity loss decreasing = Better source preservation
         """
 
         ax.text(0.05, 0.95, stats_text, transform=ax.transAxes, fontsize=10,
