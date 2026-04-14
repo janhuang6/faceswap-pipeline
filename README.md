@@ -111,7 +111,8 @@ python scripts/train_faceswap.py \
   --target-dir "data/aligned/target_faces" \
   --epochs 20 \
   --batch-size 16 \
-  --device cuda
+  --device cuda \
+  --checkpoint-dir "models/checkpoints"
 ```
 
 ### Hyperparameters
@@ -177,20 +178,22 @@ This creates 4 plots:
 
 ```bash
 python scripts/inference_cli.py \
-  --checkpoint "models/checkpoints/checkpoint_epoch_19.pt" \
+  --checkpoint "models/checkpoints/checkpoint_filename.pt" \
   --source "path/to/source.jpg" \
   --target "path/to/target.jpg" \
-  --output "results/swapped.jpg"
+  --output "results/swapped.jpg" \
+  --device cuda
 ```
 
 ### Batch Processing
 
 ```bash
 python scripts/inference_batch.py \
-  --checkpoint "models/checkpoints/checkpoint_epoch_19.pt" \
+  --checkpoint "models/checkpoints/checkpoint_filename.pt" \
   --source "path/to/source.jpg" \
   --target-dir "data/target_faces" \
-  --output-dir "results/batch_output"
+  --output-dir "results/batch_output" \
+  --device cuda
 ```
 
 ## Output Quality
@@ -241,16 +244,6 @@ The inference pipeline uses a hybrid approach:
 - **Transformation**: Procrustes problem solution for optimal face alignment
 - **Color Matching**: Regional color correction based on eye region statistics
 
-### Disabling Landmark Blending
-
-To use raw neural network output only:
-
-```bash
-python scripts/face_swap_inference.py \
-  --checkpoint "models/checkpoints/checkpoint_epoch_19.pt" \
-  --no-landmark-blending
-```
-
 ## Hardware Requirements
 
 ### Minimum
@@ -288,4 +281,3 @@ This project combines:
 ## Contact
 
 For questions or issues, please open a GitHub issue.
-```
