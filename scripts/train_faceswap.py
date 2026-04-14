@@ -14,32 +14,6 @@ import torchvision.models as models
 from torchvision import transforms
 
 
-def save_comparison_image(source_img, target_img, swapped_img, output_path):
-    """Save source, target, and swapped images side-by-side for comparison"""
-    import cv2
-    import numpy as np
-
-    # Ensure all images are the same height
-    height = 256
-    width = 256
-
-    source_img = cv2.resize(source_img, (width, height))
-    target_img = cv2.resize(target_img, (width, height))
-    swapped_img = cv2.resize(swapped_img, (width, height))
-
-    # Create horizontal concatenation with labels
-    comparison = np.hstack([source_img, target_img, swapped_img])
-
-    # Add text labels
-    cv2.putText(comparison, 'Source', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-    cv2.putText(comparison, 'Target', (256 + 10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-    cv2.putText(comparison, 'Swapped', (512 + 10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-
-    # Save comparison image
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    cv2.imwrite(output_path, comparison)
-
-
 # ==================== DATASET ====================
 class FaceSwapDataset(Dataset):
     def __init__(self, source_dir, target_dir, img_size=256, max_images=2000):
@@ -374,20 +348,6 @@ class FaceSwapTrainerAdvanced:
 
             with torch.no_grad():
                 fake = self.generator(source, target)
-
-            # Save comparison every N batches
-            if batch_idx % 50 == 0:  # Save every 50 batches
-                source_np = (source[0].permute(1, 2, 0).cpu().numpy() * 255).astype(np.uint8)
-                source_np = cv2.cvtColor(source_np, cv2.COLOR_RGB2BGR)
-
-                target_np = (target[0].permute(1, 2, 0).cpu().numpy() * 255).astype(np.uint8)
-                target_np = cv2.cvtColor(target_np, cv2.COLOR_RGB2BGR)
-
-                fake_np = (fake[0].permute(1, 2, 0).cpu().detach().numpy() * 255).astype(np.uint8)
-                fake_np = cv2.cvtColor(fake_np, cv2.COLOR_RGB2BGR)
-
-                comp_path = self.checkpoint_dir / f'comparison_epoch_{epoch}_batch_{batch_idx}.jpg'
-                save_comparison_image(source_np, target_np, fake_np, str(comp_path))
 
             fake_output = self.discriminator(fake.detach())
             loss_d_fake = self.criterion_bce(fake_output, torch.zeros_like(fake_output))

@@ -11,7 +11,7 @@ import json
 import dlib
 
 # ==================== IMPORT MODELS ====================
-from train_faceswap_advanced import EnhancedSwapGenerator
+from train_faceswap import EnhancedSwapGenerator
 
 # ==================== DLIB CONSTANTS ====================
 PREDICTOR_PATH = "C:\\Jan\\faceswap-pipeline\\shape_predictor_68_face_landmarks.dat"
